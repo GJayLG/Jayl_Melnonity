@@ -1,0 +1,32 @@
+/*
+ * ATTENTION: The "eval" devtool has been used (maybe by default in mode: "development").
+ * This devtool is neither made for production nor for readable output files.
+ * It uses "eval()" calls to create a separate source file in the browser devtools.
+ * If you are trying to read the output file, select a different devtool (https://webpack.js.org/configuration/devtool/)
+ * or disable the default devtool with "devtool: false".
+ * If you are looking for production-ready output files, see mode: "production" (https://webpack.js.org/configuration/mode/).
+ */
+/******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./src/RoshanInfo.ts":
+/*!***************************!*\
+  !*** ./src/RoshanInfo.ts ***!
+  \***************************/
+/***/ (() => {
+
+eval("const RoshanInfoScript = {};\r\nconst ICON_SIZE = 50;\r\nconst ICON_MARGIN = 0;\r\nconst HP_BAR_WIDTH = 200;\r\nconst HP_BAR_HEIGHT = 20;\r\nconst HP_BAR_MARGIN = 10;\r\nlet roshan;\r\nlet night;\r\nlet hpBarX = Renderer.GetScreenSize()[0] / 2 - HP_BAR_WIDTH / 2;\r\nlet hpBarY = 70;\r\nlet iconX = hpBarX - ICON_SIZE + ICON_MARGIN;\r\nlet iconY = hpBarY / 2 + ICON_SIZE / 2;\r\nlet hpBarColor = [255, 0, 0, 255];\r\nlet font = Renderer.LoadFont('Arial', 16, Enum.FontWeight.BOLD);\r\nlet roshanIcon = Renderer.LoadImage(\"panorama/images/hud/reborn/roshan_timer_roshan_psd.vtex_c\");\r\nconst path_ = ['ESP', 'Roshan Info'];\r\nlet isUiEnabled = Menu.AddToggle(path_, 'Toggle', true)\r\n    .OnChange(state => {\r\n    isUiEnabled = state.newValue;\r\n})\r\n    .SetNameLocale('ru', 'Включить')\r\n    .GetValue();\r\nlet isLocation = Menu.AddToggle(path_, 'Display roshan position', true)\r\n    .OnChange(state => {\r\n    isLocation = state.newValue;\r\n})\r\n    .SetNameLocale('ru', 'Отображать позицию рошана')\r\n    .GetValue();\r\nMenu.GetFolder(path_)\r\n    .SetTipLocale('ru', 'Отображает информацию о Рошане и его расположении.')\r\n    .SetTipLocale('en', 'Displays Roshan information and location.');\r\nlet isActiveGame = GameRules.IsActiveGame();\r\nlet location = null;\r\nlet lastRoshanHp = null;\r\nlet lastRoshanMax = null;\r\nlet lastRoshanRegen = null;\r\nlet lasthp = null;\r\nfunction getRoshan() {\r\n    const entities = EntitySystem.GetNPCsList();\r\n    for (let i = 0; i < entities.length; ++i) {\r\n        const entity = entities[i];\r\n        if (entity.IsRoshan()) {\r\n            roshan = entity;\r\n            const currentHp = roshan.GetHealth();\r\n            if (lasthp !== currentHp) {\r\n                lasthp = currentHp;\r\n                lastRoshanHp = lasthp;\r\n            }\r\n            lastRoshanRegen = roshan.GetHealthRegen();\r\n            lastRoshanMax = roshan.GetMaxHealth();\r\n            break;\r\n        }\r\n    }\r\n}\r\nfunction drawRoshanIcon() {\r\n    let hpPct = roshan ? Math.max(0, Math.min(lastRoshanHp / lastRoshanMax, 1)) : null;\r\n    let barColor = hpPct !== null ? [Math.round(255 * (1 - hpPct)), Math.round(255 * hpPct), 0, 200] : [255, 255, 255, 200];\r\n    // Draw background rectangle\r\n    Renderer.SetDrawColor(40, 40, 40, 200);\r\n    Renderer.DrawFilledRect(hpBarX, hpBarY, HP_BAR_WIDTH, HP_BAR_HEIGHT, 10, Enum.RoundCorners.All);\r\n    // Draw health bar\r\n    if (hpPct !== null) {\r\n        Renderer.SetDrawColor(barColor[0], barColor[1], barColor[2], barColor[3]);\r\n        Renderer.DrawFilledRect(hpBarX + 2, hpBarY + 2, (HP_BAR_WIDTH - 4) * hpPct, HP_BAR_HEIGHT - 4, 10, Enum.RoundCorners.All);\r\n    }\r\n    // Draw text\r\n    let hpText = roshan ? Math.floor(lastRoshanHp) + \"/\" + Math.floor(lastRoshanMax) : '???/???';\r\n    if (isLocation) {\r\n        hpText += location;\r\n    }\r\n    let textWidth = Renderer.GetTextSize(font, hpText)[0];\r\n    let textX = hpBarX + HP_BAR_WIDTH / 2 - textWidth / 2;\r\n    let textY = hpBarY + HP_BAR_HEIGHT + 4;\r\n    // Draw text shadow\r\n    Renderer.SetDrawColor(0, 0, 0, 200);\r\n    Renderer.DrawText(font, textX + 1, textY + 1, hpText);\r\n    // Draw text\r\n    Renderer.SetDrawColor(255, 255, 255, 255);\r\n    Renderer.DrawText(font, textX, textY, hpText);\r\n    // Draw Roshan icon background\r\n    Renderer.SetDrawColor(0, 0, 0, 100);\r\n    Renderer.DrawFilledCircle(iconX + ICON_SIZE / 2 + 1, iconY + ICON_SIZE / 2 + 1, ICON_SIZE * 0.6 + 1);\r\n    // Draw white circle over the Roshan icon\r\n    Renderer.SetDrawColor(255, 255, 255, 200);\r\n    Renderer.DrawFilledCircle(iconX + ICON_SIZE / 2, iconY + ICON_SIZE / 2, ICON_SIZE * 0.6);\r\n    // Draw Roshan icon\r\n    Renderer.SetDrawColor(255, 255, 255, 255);\r\n    Renderer.DrawImage(roshanIcon, iconX, iconY, ICON_SIZE, ICON_SIZE);\r\n}\r\nfunction isNightTimeInGame(gameTimeInSeconds) {\r\n    const gameTimeInMinutes = Math.floor(gameTimeInSeconds / 60);\r\n    const isNightTime = gameTimeInMinutes % 10 >= 5 && gameTimeInMinutes % 10 <= 9;\r\n    return isNightTime;\r\n}\r\nfunction updateRoshanInfo() {\r\n    const isActiveGame = GameRules.IsActiveGame();\r\n    if (!isUiEnabled || !isActiveGame) {\r\n        return;\r\n    }\r\n    if (lastRoshanHp !== null && lastRoshanHp <= lastRoshanMax) {\r\n        lastRoshanHp += lastRoshanRegen;\r\n    }\r\n    let night = isNightTimeInGame(GameRules.GetGameTime() - GameRules.GetGameLoadTime() - GameRules.GetGameStartTime());\r\n    if (isLocation) {\r\n        location = night ? ' | TOP' : ' | BOT';\r\n    }\r\n}\r\nRoshanInfoScript.OnScriptLoad = () => {\r\n    isActiveGame = GameRules.IsActiveGame();\r\n};\r\nRoshanInfoScript.OnGameStart = () => {\r\n    isActiveGame = GameRules.IsActiveGame();\r\n};\r\nRoshanInfoScript.OnUpdate = () => {\r\n    getRoshan();\r\n    if (Engine.OnceAt(1)) {\r\n        updateRoshanInfo();\r\n    }\r\n};\r\nRoshanInfoScript.OnDraw = () => {\r\n    if (!isUiEnabled || !isActiveGame) {\r\n        return;\r\n    }\r\n    drawRoshanIcon();\r\n};\r\nRoshanInfoScript.OnGameEnd = () => {\r\n    isActiveGame = false;\r\n    roshan = null;\r\n    lastRoshanHp = null;\r\n    lastRoshanMax = null;\r\n    lastRoshanRegen = null;\r\n    lasthp = null;\r\n};\r\nRegisterScript(RoshanInfoScript);\r\n\n\n//# sourceURL=webpack:///./src/RoshanInfo.ts?");
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module can't be inlined because the eval devtool is used.
+/******/ 	var __webpack_exports__ = {};
+/******/ 	__webpack_modules__["./src/RoshanInfo.ts"]();
+/******/ 	
+/******/ })()
+;
